@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protected Link — Snip</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="center-page">
+<div class="protect-card">
+  <div class="protect-icon">🔒</div>
+  <h1 class="protect-title">Protected link</h1>
+  <p class="protect-sub">Enter the password to continue to this destination.</p>
+  <div class="field-group">
+    <input class="field-input" id="pwInput" type="password" placeholder="Password" autofocus />
+  </div>
+  <p class="protect-error" id="pwError" hidden>Incorrect password. Try again.</p>
+  <button class="shorten-btn" id="pwBtn">Unlock &amp; Go</button>
+  <a href="/" class="protect-back">← Back to Snip</a>
+</div>
+<script>
+  const slug = location.pathname.split("/").pop();
+  document.getElementById("pwBtn").addEventListener("click", async () => {
+    const password = document.getElementById("pwInput").value;
+    const err = document.getElementById("pwError");
+    err.hidden = true;
+    try {
+      const res = await fetch("/api/resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        location.href = data.url;
+      } else {
+        err.hidden = false;
+      }
+    } catch {
+      err.textContent = "Something went wrong. Try again.";
+      err.hidden = false;
+    }
+  });
+  document.getElementById("pwInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("pwBtn").click();
+  });
+</script>
+</body>
+</html>
